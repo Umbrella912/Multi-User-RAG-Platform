@@ -1,0 +1,86 @@
+# Production overrides for the Multi-User RAG Platform.
+#
+# Usage:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This file is layered on top of docker-compose.yml. It tightens restart
+# policies, adds resource limits, sets production environment values, and
+# enables structured JSON logging with rotation. Sensitive values (JWT_SECRET,
+# API keys, DB password) should come from the environment or SSM Parameter
+# Store — never hardcoded here.
+
+services:
+  postgres:
+    restart: always
+    # In production prefer a managed RDS instance and drop the local service;
+    # keep this block if self-hosting Postgres on the EC2 host.
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  chromadb:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  backend:
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      # CORS should list your real domain(s) in production.
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://your-domain.com}
+      # JWT_SECRET must be >=32 random bytes; supply via env / SSM.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required in production}
+      # Move uploads to S3 in production.
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      # Retrieval knobs (tune per your eval results).
+      TOP_K_VECTOR: ${TOP_K_VECTOR:-20}
+      TOP_K_BM25: ${TOP_K_BM25:-20}
+      RERANK_ENABLED: ${RERANK_ENABLED:-true}
+      SIMILARITY_THRESHOLD: ${SIMILARITY_THRESHOLD:-0.35}
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  frontend:
+    restart: always
+    environment:
+      BACKEND_URL: http://backend:8000
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"

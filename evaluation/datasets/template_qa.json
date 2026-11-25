@@ -1,0 +1,296 @@
+{
+  "schema_version": "1.0",
+  "description": "Manual Q/A/ground-truth template for the Multi-User RAG Platform evaluation. Fill each triple in the 'triples' list. 'question' is what you ask the system; 'answer' is the expected answer; 'contexts' are the passages that should be retrieved for the question (used by RAGAS context_precision / context_recall); 'ground_truths' are the reference answers (used by RAGAS context_recall and answer_relevancy); 'source' records where the ground truth came from. Run evaluation/run_ragas.py with this dataset to produce metrics.",
+  "example": {
+    "id": "q01",
+    "question": "What does the refund policy say about the return window?",
+    "answer": "Customers may return products within 30 days of delivery for a full refund.",
+    "contexts": [
+      "Customers may return products within 30 days of delivery for a full refund. The returned item must be in original condition with all accessories."
+    ],
+    "ground_truths": [
+      "Customers may return products within 30 days of delivery for a full refund."
+    ],
+    "source": {
+      "file_name": "refund_policy.pdf",
+      "page": 2
+    }
+  },
+  "triples": [
+    {
+      "id": "q01",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q02",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q03",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q04",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q05",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q06",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q07",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q08",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q09",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q10",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q11",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q12",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q13",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q14",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q15",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q16",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q17",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q18",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q19",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q20",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q21",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q22",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q23",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q24",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    },
+    {
+      "id": "q25",
+      "question": "",
+      "answer": "",
+      "contexts": [],
+      "ground_truths": [],
+      "source": {
+        "file_name": "",
+        "page": 0
+      }
+    }
+  ]
+}
