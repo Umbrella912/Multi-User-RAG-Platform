@@ -1,0 +1,137 @@
+# Deployment pipeline for the Multi-User RAG Platform.
+#
+# On a tag (e.g. v1.0.0) or manual dispatch:
+#   1. Authenticate to Amazon ECR.
+#   2. Build and push the backend and frontend images to ECR.
+#   3. SSH into the EC2 instance and pull the new images, then run
+#      `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`.
+#
+# Secrets required in the repo settings:
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION,
+#   ECR_REPO_BACKEND, ECR_REPO_FRONTEND,
+#   EC2_HOST, EC2_USER, EC2_SSH_KEY
+#
+# (Docker Hub alternative: replace the ECR steps with docker/login-action and
+#  push to Docker Hub, then have EC2 pull from there.)
+
+name: Deploy
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      health_url:
+        description: "Public health-check URL (e.g. https://rag.example.com/health/live)"
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    name: Build & push to ECR
+    runs-on: ubuntu-latest
+    outputs:
+      backend_image: ${{ steps.meta_backend.outputs.image }}
+      frontend_image: ${{ steps.meta_frontend.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # --- Backend image ---
+      - name: Compute backend image tag
+        id: meta_backend
+        run: echo "image=${{ secrets.ECR_REPO_BACKEND }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta_backend.outputs.image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # --- Frontend image ---
+      - name: Compute frontend image tag
+        id: meta_frontend
+        run: echo "image=${{ secrets.ECR_REPO_FRONTEND }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta_frontend.outputs.image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: SSH deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy compose files to the host
+        run: |
+          scp -i ~/.ssh/id_rsa \
+            docker-compose.yml docker-compose.prod.yml \
+            deploy/nginx.conf \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/opt/rag/
+
+      - name: Pull images and redeploy
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<'EOF'
+            set -euo pipefail
+            cd /opt/rag
+            # Export the just-built image tags for the compose run.
+            export IMAGE_BACKEND="${{ needs.build-and-push.outputs.backend_image }}"
+            export IMAGE_FRONTEND="${{ needs.build-and-push.outputs.frontend_image }}"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+              pull backend frontend
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            docker image prune -f
+          EOF
+
+      - name: Health check
+        env:
+          HEALTH_URL: ${{ inputs.health_url || 'https://' }}
+        run: |
+          url="${HEALTH_URL%/}"
+          if [ "$url" = "https://" ]; then
+            echo "::warning::No health_url provided; skipping the health check."
+            exit 0
+          fi
+          for i in {1..10}; do
+            if curl -fsS "$url" >/dev/null 2>&1; then
+              echo "Deployment healthy ($url)."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Health check failed against $url."
+          exit 1

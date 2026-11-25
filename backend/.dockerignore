@@ -1,0 +1,21 @@
+# Keep the Docker build context small and out of the image:
+# exclude local virtualenvs, caches, and local-only files.
+
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+.env
+*.log
+.git/
+.gitignore
+Dockerfile
+.dockerignore

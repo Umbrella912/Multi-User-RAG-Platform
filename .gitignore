@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Runtime data (uploads, chroma, logs)
+backend/data/
+backend/uploads/
+*.log
+
+# Evaluation outputs (keep templates, ignore generated results)
+evaluation/datasets/sample_qa.json
+evaluation/results_*.md
+evaluation/results_*.json
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
